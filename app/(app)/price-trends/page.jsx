@@ -1,6 +1,5 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { useGet } from '@/lib/useCrud';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
 import { Money } from '@/components/common/widgets';
@@ -16,10 +15,7 @@ function TrendCell({ trend }) {
 }
 
 export default function PriceTrendsPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['price-trends'],
-    queryFn: () => api.get('/price-trends').then((r) => r),
-  });
+  const { data, isLoading } = useGet('/price-trends');
 
   const rows = Array.isArray(data) ? data : [];
 

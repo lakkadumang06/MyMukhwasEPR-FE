@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import {
   ShoppingBag,
   Package,
@@ -9,7 +8,7 @@ import {
   IndianRupee,
   Percent,
 } from 'lucide-react';
-import { api } from '@/lib/api';
+import { useGet } from '@/lib/useCrud';
 import { num, pct } from '@/lib/format';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { KpiCard } from '@/components/common/widgets';
@@ -34,10 +33,7 @@ export default function SalesReportPage() {
   if (from) params.from = from;
   if (to) params.to = to;
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['reports', 'sales', groupBy, from, to],
-    queryFn: () => api.get('/reports/sales', { params }).then((r) => r),
-  });
+  const { data, isLoading, error } = useGet('/reports/sales', params);
 
   const rows = data?.rows || [];
   const summary = data?.summary || {};

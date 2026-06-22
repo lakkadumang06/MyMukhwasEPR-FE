@@ -6,7 +6,8 @@ import { DataTable } from '@/components/data/DataTable';
 import { Modal } from '@/components/common/Modal';
 import { AutoForm } from '@/components/form/AutoForm';
 import { Button } from '@/components/ui';
-import { useAuthStore } from '@/lib/auth-store';
+import { useAppSelector } from '@/lib/store/hooks';
+import { selectRole } from '@/lib/store/authSlice';
 import { can } from '@/lib/rbac';
 import { useCreate, useList, useRemove, useUpdate } from '@/lib/useCrud';
 
@@ -28,7 +29,7 @@ export function CrudPage(config) {
     header,
   } = config;
 
-  const role = useAuthStore((s) => s.user?.role);
+  const role = useAppSelector(selectRole);
   const writable = can(role, writeRoles);
 
   const { data, isLoading, error } = useList(resource);

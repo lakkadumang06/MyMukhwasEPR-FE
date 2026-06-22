@@ -1,7 +1,6 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
 import { Package } from 'lucide-react';
-import { api } from '@/lib/api';
+import { useGet } from '@/lib/useCrud';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
 import { Money, KpiCard } from '@/components/common/widgets';
@@ -9,10 +8,7 @@ import { StatusBadge } from '@/components/common/widgets';
 import { inr } from '@/lib/format';
 
 export default function RawMaterialStockPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['stock', 'raw-materials'],
-    queryFn: () => api.get('/stock/raw-materials').then((r) => r),
-  });
+  const { data, isLoading } = useGet('/stock/raw-materials');
 
   const rows = Array.isArray(data) ? data : [];
   const totalStockValue = rows.reduce((s, r) => s + (Number(r.stockValue) || 0), 0);

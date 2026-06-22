@@ -1,18 +1,14 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
 import { CrudPage } from '@/components/crud/CrudPage';
 import { Money } from '@/components/common/widgets';
 import { Card } from '@/components/ui';
-import { api } from '@/lib/api';
+import { useGet } from '@/lib/useCrud';
 import { date } from '@/lib/format';
 
 const TYPES = ['Capital In', 'Asset', 'Withdrawal'];
 
 function SummaryCard() {
-  const { data } = useQuery({
-    queryKey: ['/investment/summary'],
-    queryFn: () => api.get('/investment/summary'),
-  });
+  const { data } = useGet('/investment/summary');
 
   const cells = [
     { label: 'Total Invested', value: data?.totalInvested },

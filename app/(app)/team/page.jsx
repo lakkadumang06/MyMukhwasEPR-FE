@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -9,10 +8,10 @@ import { Modal } from '@/components/common/Modal';
 import { AutoForm } from '@/components/form/AutoForm';
 import { Money, StatusBadge } from '@/components/common/widgets';
 import { Button, Card, Input, Label, Select } from '@/components/ui';
-import { useAuthStore } from '@/lib/auth-store';
+import { useAppSelector } from '@/lib/store/hooks';
+import { selectRole } from '@/lib/store/authSlice';
 import { can } from '@/lib/rbac';
-import { useList, useCreate, useUpdate, useRemove } from '@/lib/useCrud';
-import { api } from '@/lib/api';
+import { useList, useCreate, useUpdate, useRemove, useGet, useRawMutation } from '@/lib/useCrud';
 import { date } from '@/lib/format';
 
 const WRITE_ROLES = ['manager'];
@@ -120,20 +119,18 @@ function EmployeesSection({ writable }) {
 }
 
 function AttendanceSection() {
-  const qc = useQueryClient();
   const { data: empData } = useList('/team/employees');
   const employees = Array.isArray(empData) ? empData : empData?.items || [];
 
   const [employee, setEmployee] = useState('');
   const [day, setDay] = useState('');
   const [status, setStatus] = useState('Present');
-  const [saving, setSaving] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['/team/attendance'],
-    queryFn: () => api.get('/team/attendance'),
-  });
+  const { data, isLoading, error } = useGet('/team/attendance');
   const rows = Array.isArray(data) ? data : data?.items || [];
+
+  const mark = useRawMutation();
+  const saving = mark.isPending;
 
   const handleMark = async (e) => {
     e.preventDefault();
@@ -141,18 +138,19 @@ function AttendanceSection() {
       toast.error('Select employee and date');
       return;
     }
-    setSaving(true);
     try {
-      await api.post('/team/attendance', { employee, date: day, status });
+      await mark.trigger({
+        url: '/team/attendance',
+        method: 'post',
+        body: { employee, date: day, status },
+        invalidates: [{ type: 'Raw', id: '/team/attendance' }],
+      });
       toast.success('Attendance marked');
       setEmployee('');
       setDay('');
       setStatus('Present');
-      qc.invalidateQueries({ queryKey: ['/team/attendance'] });
     } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setSaving(false);
+      toast.error(err?.message || 'Something went wrong');
     }
   };
 
@@ -211,7 +209,7 @@ function AttendanceSection() {
 }
 
 export default function TeamPage() {
-  const role = useAuthStore((s) => s.user?.role);
+  const role = useAppSelector(selectRole);
   const writable = can(role, WRITE_ROLES);
 
   return (

@@ -35,29 +35,37 @@ export function StatusBadge({ value }) {
 }
 
 /** Dashboard KPI card with motion. */
-export function KpiCard({ label, value, icon: Icon, accent = 'brand', delay = 0 }) {
+export function KpiCard({ label, value, icon: Icon, accent = 'brand', hint, delay = 0 }) {
   const accents = {
-    brand: 'text-brand-600 bg-brand-50',
-    green: 'text-green-700 bg-green-50',
-    amber: 'text-amber-700 bg-amber-50',
-    red: 'text-red-700 bg-red-50',
+    brand: 'text-brand-700 bg-brand-50 ring-brand-100',
+    green: 'text-green-700 bg-green-50 ring-green-100',
+    amber: 'text-amber-700 bg-amber-50 ring-amber-100',
+    red: 'text-red-700 bg-red-50 ring-red-100',
+  };
+  const bars = {
+    brand: 'bg-brand-500',
+    green: 'bg-green-500',
+    amber: 'bg-amber-500',
+    red: 'bg-red-500',
   };
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
-      className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
+      <span className={cn('absolute inset-y-0 left-0 w-1', bars[accent])} />
+      <div className="flex items-start justify-between">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
         {Icon ? (
-          <span className={cn('rounded-lg p-2', accents[accent])}>
-            <Icon size={16} />
+          <span className={cn('rounded-xl p-2 ring-1 transition-transform group-hover:scale-105', accents[accent])}>
+            <Icon size={18} />
           </span>
         ) : null}
       </div>
-      <p className="mt-2 text-2xl font-semibold text-slate-800 tnum">{value}</p>
+      <p className="mt-3 text-2xl font-bold text-slate-900 tnum">{value}</p>
+      {hint ? <p className="mt-1 text-xs text-slate-400">{hint}</p> : null}
     </motion.div>
   );
 }

@@ -1,15 +1,11 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { useGet } from '@/lib/useCrud';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
 import { Money, StatusBadge } from '@/components/common/widgets';
 
 export default function FinishedGoodsStockPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['stock', 'finished'],
-    queryFn: () => api.get('/stock/finished').then((r) => r),
-  });
+  const { data, isLoading } = useGet('/stock/finished');
 
   const rows = Array.isArray(data) ? data : [];
 

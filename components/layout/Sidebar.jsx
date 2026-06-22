@@ -5,25 +5,23 @@ import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import { NAV } from '@/lib/nav';
-import { useAuthStore } from '@/lib/auth-store';
+import { useAppSelector } from '@/lib/store/hooks';
+import { selectRole } from '@/lib/store/authSlice';
 import { can } from '@/lib/rbac';
-import logo from '@/assets/logo.avif';
 
 export function Sidebar() {
   const pathname = usePathname();
-  const role = useAuthStore((s) => s.user?.role);
+  const role = useAppSelector(selectRole);
 
   return (
     <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-slate-200 bg-brand-700 text-white">
-      <div className="flex items-center gap-2 px-5 py-4">
-        <Image src={logo} alt="MyMukhwas" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" priority />
-        <div>
-          <p className="font-semibold leading-tight">MyMukhwas</p>
-          <p className="text-[11px] text-brand-100">ERP System</p>
+      <div className="px-4 py-4">
+        <div className="flex items-center justify-center rounded-xl bg-white px-3 py-2.5 shadow-sm">
+          <Image src="/assets/logo.avif" alt="MyMukhwas" width={300} height={68} className="h-8 w-auto object-contain" priority />
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 pb-6">
+      <nav className="sidebar-scroll flex-1 overflow-y-auto px-3 pb-6">
         {NAV.map((section) => {
           const items = section.items.filter((it) => can(role, it.roles));
           if (items.length === 0) return null;

@@ -7,12 +7,13 @@ import { Modal } from '@/components/common/Modal';
 import { AutoForm } from '@/components/form/AutoForm';
 import { Money } from '@/components/common/widgets';
 import { Button } from '@/components/ui';
-import { useAuthStore } from '@/lib/auth-store';
+import { useAppSelector } from '@/lib/store/hooks';
+import { selectRole } from '@/lib/store/authSlice';
 import { can } from '@/lib/rbac';
 import { useCreate, useList, useRemove, useUpdate } from '@/lib/useCrud';
 
 export default function RecipeBomPage() {
-  const role = useAuthStore((s) => s.user?.role);
+  const role = useAppSelector(selectRole);
   const writable = can(role, ['manager', 'production']);
 
   const { data, isLoading, error } = useList('/recipe-bom');

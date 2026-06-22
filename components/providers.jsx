@@ -1,21 +1,23 @@
 'use client';
-import { useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { Provider } from 'react-redux';
 import { Toaster } from 'sonner';
+import { store } from '@/lib/store';
+import { hydrateAuth } from '@/lib/store/authSlice';
+import { RouteProgress } from '@/components/common/Loader';
 
 export function Providers({ children }) {
-  const [client] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: { refetchOnWindowFocus: false, retry: 1, staleTime: 15000 },
-        },
-      }),
-  );
+  // Re-hydrate persisted auth from localStorage once on the client. (Initial
+  // server render starts logged-out to avoid hydration mismatches.)
+  useEffect(() => {
+    store.dispatch(hydrateAuth());
+  }, []);
+
   return (
-    <QueryClientProvider client={client}>
+    <Provider store={store}>
+      <RouteProgress />
       {children}
       <Toaster richColors position="top-right" />
-    </QueryClientProvider>
+    </Provider>
   );
 }

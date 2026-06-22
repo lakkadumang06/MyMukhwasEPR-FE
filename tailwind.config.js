@@ -9,14 +9,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // MyMukhwas identity (matches the spreadsheet)
+        // MyMukhwas identity (matches the logo green #185830)
         brand: {
-          50: '#eef4fb',
-          100: '#d9e6f5',
-          500: '#2b6cb0',
-          600: '#1f4e79', // deep blue headers
-          700: '#173a5c',
-          900: '#0f273e',
+          50: '#eef6f1',
+          100: '#d4e9db',
+          200: '#a9d2b6',
+          500: '#2a8050',
+          600: '#1f6b40',
+          700: '#185830', // logo green / deep headers
+          800: '#134627',
+          900: '#0d331c',
         },
         accent: '#c0182c', // red banners
         success: '#15803d',

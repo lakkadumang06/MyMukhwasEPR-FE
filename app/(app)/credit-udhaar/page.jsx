@@ -1,7 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { Plus, IndianRupee } from 'lucide-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
@@ -10,19 +9,19 @@ import { AutoForm } from '@/components/form/AutoForm';
 import { Button, Card, Input, Label } from '@/components/ui';
 import { Money, StatusBadge } from '@/components/common/widgets';
 import { date } from '@/lib/format';
-import { api } from '@/lib/api';
-import { useList, useCreate } from '@/lib/useCrud';
-import { useAuthStore } from '@/lib/auth-store';
+import { useList, useCreate, useRawMutation } from '@/lib/useCrud';
+import { useAppSelector } from '@/lib/store/hooks';
+import { selectRole } from '@/lib/store/authSlice';
 import { can } from '@/lib/rbac';
 
 export default function CreditUdhaarPage() {
-  const role = useAuthStore((s) => s.user?.role);
+  const role = useAppSelector(selectRole);
   const writable = can(role, ['accountant', 'manager']);
 
-  const qc = useQueryClient();
   const { data: listData, isLoading, error } = useList('/credit-udhaar');
   const { data: customersData } = useList('/customers');
   const create = useCreate('/credit-udhaar');
+  const payment = useRawMutation();
 
   const rows = Array.isArray(listData) ? listData : listData?.items || [];
   const customerItems = Array.isArray(customersData)
@@ -37,18 +36,6 @@ export default function CreditUdhaarPage() {
   const [payRow, setPayRow] = useState(null);
   const [payAmount, setPayAmount] = useState('');
 
-  const payment = useMutation({
-    mutationFn: ({ id, amount }) =>
-      api.patch(`/credit-udhaar/${id}/payment`, { amount }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['/credit-udhaar'] });
-      toast.success('Payment recorded');
-      setPayRow(null);
-      setPayAmount('');
-    },
-    onError: (e) => toast.error(e.message),
-  });
-
   const handleCreate = async (values) => {
     const selected = customerItems.find((c) => c._id === values.customer);
     const body = {
@@ -59,14 +46,26 @@ export default function CreditUdhaarPage() {
     setNewOpen(false);
   };
 
-  const submitPayment = (e) => {
+  const submitPayment = async (e) => {
     e.preventDefault();
     const amount = Number(payAmount);
     if (!(amount > 0)) {
       toast.error('Enter a positive amount');
       return;
     }
-    payment.mutate({ id: payRow._id, amount });
+    try {
+      await payment.trigger({
+        url: `/credit-udhaar/${payRow._id}/payment`,
+        method: 'patch',
+        body: { amount },
+        invalidates: [{ type: 'Resource', id: '/credit-udhaar' }],
+      });
+      toast.success('Payment recorded');
+      setPayRow(null);
+      setPayAmount('');
+    } catch (err) {
+      toast.error(err?.message || 'Something went wrong');
+    }
   };
 
   const columns = [

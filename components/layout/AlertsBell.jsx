@@ -2,16 +2,11 @@
 import { useState } from 'react';
 import { Bell } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { useGet } from '@/lib/useCrud';
 
 export function AlertsBell() {
   const [open, setOpen] = useState(false);
-  const { data } = useQuery({
-    queryKey: ['dashboard', 'alerts'],
-    queryFn: () => api.get('/dashboard/alerts').then((r) => r),
-    refetchInterval: 60000,
-  });
+  const { data } = useGet('/dashboard/alerts', {}, { pollingInterval: 60000 });
 
   const a = data || {};
   const count =

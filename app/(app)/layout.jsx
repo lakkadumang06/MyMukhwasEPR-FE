@@ -3,11 +3,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
-import { useAuthStore } from '@/lib/auth-store';
+import { BrandLoader } from '@/components/common/Loader';
+import { useAppSelector } from '@/lib/store/hooks';
+import { selectToken } from '@/lib/store/authSlice';
 
 export default function AppLayout({ children }) {
   const router = useRouter();
-  const token = useAuthStore((s) => s.token);
+  const token = useAppSelector(selectToken);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -15,7 +17,7 @@ export default function AppLayout({ children }) {
     else setReady(true);
   }, [token, router]);
 
-  if (!ready) return null;
+  if (!ready) return <BrandLoader label="Preparing your workspace…" />;
 
   return (
     <div className="flex h-screen overflow-hidden">

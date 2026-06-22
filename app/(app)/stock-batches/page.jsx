@@ -1,6 +1,5 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { useGet } from '@/lib/useCrud';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
 import { Money, StatusBadge } from '@/components/common/widgets';
@@ -8,10 +7,7 @@ import { Card } from '@/components/ui';
 import { date } from '@/lib/format';
 
 export default function StockBatchesPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['stock-batches'],
-    queryFn: () => api.get('/stock-batches').then((r) => r),
-  });
+  const { data, isLoading } = useGet('/stock-batches');
 
   const items = data?.items || [];
 

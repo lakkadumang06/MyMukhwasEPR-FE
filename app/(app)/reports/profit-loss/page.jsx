@@ -1,9 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { TrendingUp, IndianRupee, Wallet, Percent } from 'lucide-react';
-import { api } from '@/lib/api';
+import { useGet } from '@/lib/useCrud';
 import { pct } from '@/lib/format';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { KpiCard, Loading } from '@/components/common/widgets';
@@ -16,10 +15,7 @@ export default function ProfitLossPage() {
   const params = {};
   if (month) params.month = month;
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['reports', 'profit-loss', month],
-    queryFn: () => api.get('/reports/profit-loss', { params }).then((r) => r),
-  });
+  const { data, isLoading, error } = useGet('/reports/profit-loss', params);
 
   const d = data || {};
   const expenseByType = d.expenseByType || {};
