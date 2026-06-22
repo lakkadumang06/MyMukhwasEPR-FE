@@ -1,0 +1,173 @@
+'use client';
+import { useMemo, useState } from 'react';
+import { Plus, IndianRupee } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { DataTable } from '@/components/data/DataTable';
+import { Modal } from '@/components/common/Modal';
+import { AutoForm } from '@/components/form/AutoForm';
+import { Button, Card, Input, Label } from '@/components/ui';
+import { Money, StatusBadge } from '@/components/common/widgets';
+import { date } from '@/lib/format';
+import { api } from '@/lib/api';
+import { useList, useCreate } from '@/lib/useCrud';
+import { useAuthStore } from '@/lib/auth-store';
+import { can } from '@/lib/rbac';
+
+export default function CreditUdhaarPage() {
+  const role = useAuthStore((s) => s.user?.role);
+  const writable = can(role, ['accountant', 'manager']);
+
+  const qc = useQueryClient();
+  const { data: listData, isLoading, error } = useList('/credit-udhaar');
+  const { data: customersData } = useList('/customers');
+  const create = useCreate('/credit-udhaar');
+
+  const rows = Array.isArray(listData) ? listData : listData?.items || [];
+  const customerItems = Array.isArray(customersData)
+    ? customersData
+    : customersData?.items || [];
+  const customerOptions = useMemo(
+    () => customerItems.map((c) => ({ value: c._id, label: c.name })),
+    [customerItems],
+  );
+
+  const [newOpen, setNewOpen] = useState(false);
+  const [payRow, setPayRow] = useState(null);
+  const [payAmount, setPayAmount] = useState('');
+
+  const payment = useMutation({
+    mutationFn: ({ id, amount }) =>
+      api.patch(`/credit-udhaar/${id}/payment`, { amount }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['/credit-udhaar'] });
+      toast.success('Payment recorded');
+      setPayRow(null);
+      setPayAmount('');
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleCreate = async (values) => {
+    const selected = customerItems.find((c) => c._id === values.customer);
+    const body = {
+      ...values,
+      customerName: values.customerName || selected?.name || '',
+    };
+    await create.mutateAsync(body);
+    setNewOpen(false);
+  };
+
+  const submitPayment = (e) => {
+    e.preventDefault();
+    const amount = Number(payAmount);
+    if (!(amount > 0)) {
+      toast.error('Enter a positive amount');
+      return;
+    }
+    payment.mutate({ id: payRow._id, amount });
+  };
+
+  const columns = [
+    { key: 'customerName', header: 'Customer' },
+    { key: 'orderId', header: 'Order' },
+    { key: 'amount', header: 'Amount', align: 'right', render: (r) => <Money value={r.amount} /> },
+    { key: 'paidAmount', header: 'Paid', align: 'right', render: (r) => <Money value={r.paidAmount} /> },
+    { key: 'balance', header: 'Balance', align: 'right', render: (r) => <Money value={r.balance} /> },
+    { key: 'dueDate', header: 'Due Date', render: (r) => date(r.dueDate) },
+    { key: 'status', header: 'Status', render: (r) => <StatusBadge value={r.status} /> },
+  ];
+
+  return (
+    <div>
+      <PageHeader title="Credit / Udhaar" subtitle="Customer credit ledger">
+        {writable ? (
+          <Button onClick={() => setNewOpen(true)}>
+            <Plus size={16} /> New
+          </Button>
+        ) : null}
+      </PageHeader>
+
+      <Card className="mb-5 p-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          Total Outstanding
+        </p>
+        <p className="mt-1 text-2xl font-semibold text-slate-800 tnum">
+          <Money value={listData?.totalOutstanding} />
+        </p>
+      </Card>
+
+      <DataTable
+        columns={columns}
+        data={rows}
+        isLoading={isLoading}
+        error={error}
+        searchKeys={['customerName', 'orderId']}
+        actions={
+          writable
+            ? (row) => (
+                <div className="flex justify-end">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={row.balance <= 0}
+                    onClick={() => {
+                      setPayRow(row);
+                      setPayAmount('');
+                    }}
+                  >
+                    <IndianRupee size={14} /> Record Payment
+                  </Button>
+                </div>
+              )
+            : undefined
+        }
+      />
+
+      <Modal open={newOpen} onClose={() => setNewOpen(false)} title="New Credit Entry">
+        <AutoForm
+          fields={[
+            { name: 'customer', label: 'Customer', type: 'select', required: true, options: customerOptions },
+            { name: 'customerName', label: 'Customer Name', half: true },
+            { name: 'amount', label: 'Amount', type: 'number', required: true, half: true },
+            { name: 'dueDate', label: 'Due Date', type: 'date', half: true },
+            { name: 'orderId', label: 'Order ID', half: true },
+          ]}
+          onSubmit={handleCreate}
+          submitting={create.isPending}
+        />
+      </Modal>
+
+      <Modal
+        open={!!payRow}
+        onClose={() => setPayRow(null)}
+        title="Record Payment"
+        width="max-w-sm"
+      >
+        <form onSubmit={submitPayment} className="space-y-4">
+          {payRow ? (
+            <p className="text-sm text-slate-500">
+              {payRow.customerName} — balance <Money value={payRow.balance} />
+            </p>
+          ) : null}
+          <div>
+            <Label className="mb-1 block">Amount</Label>
+            <Input
+              type="number"
+              step="any"
+              autoFocus
+              value={payAmount}
+              onChange={(e) => setPayAmount(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button type="submit" disabled={payment.isPending}>
+              {payment.isPending ? 'Saving…' : 'Record Payment'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}

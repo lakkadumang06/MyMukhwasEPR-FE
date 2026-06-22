@@ -1,0 +1,32 @@
+{
+  "name": "mymukhwas-erp-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.51.11",
+    "@tanstack/react-table": "^8.19.3",
+    "axios": "^1.7.2",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.12",
+    "framer-motion": "^11.3.8",
+    "lucide-react": "^0.417.0",
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.52.1",
+    "recharts": "^2.12.7",
+    "sonner": "^1.5.0",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7"
+  }
+}
