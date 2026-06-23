@@ -10,12 +10,32 @@ import { Button, Input, Label, Select, Textarea } from '@/components/ui';
  * defaultValues: object (for edit)
  * onSubmit(values), submitting: bool
  */
+/** Normalise stored values so the edit popup pre-fills every field correctly. */
+function normalizeDefaults(fields, defaultValues = {}) {
+  const out = { ...defaultValues };
+  for (const f of fields) {
+    const v = defaultValues[f.name];
+    if (f.type === 'date' && v) {
+      // `<input type="date">` needs YYYY-MM-DD; the API returns ISO datetimes.
+      const d = new Date(v);
+      out[f.name] = Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+    } else if (f.type === 'select' && v != null && typeof v === 'object') {
+      // Reference fields may arrive populated — fall back to the _id for the option value.
+      out[f.name] = v._id ?? v.value ?? '';
+    } else if (f.type === 'number' && (v === null || v === undefined)) {
+      out[f.name] = '';
+    }
+  }
+  return out;
+}
+
 export function AutoForm({ fields, defaultValues = {}, onSubmit, submitting, submitLabel = 'Save' }) {
+  const initialValues = normalizeDefaults(fields, defaultValues);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues });
+  } = useForm({ defaultValues: initialValues });
 
   const coerce = (f, v) => {
     if (f.type === 'number') return v === '' || v === null ? undefined : Number(v);
@@ -42,7 +62,7 @@ export function AutoForm({ fields, defaultValues = {}, onSubmit, submitting, sub
 
           {f.type === 'select' ? (
             <Select
-              defaultValue={defaultValues[f.name] ?? ''}
+              defaultValue={initialValues[f.name] ?? ''}
               disabled={f.readOnly}
               {...register(f.name, { required: f.required })}
             >
