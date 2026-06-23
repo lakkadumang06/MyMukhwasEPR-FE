@@ -43,8 +43,11 @@ export default function SalesPage() {
       columns={[
         { key: 'orderId', header: 'Order ID' },
         { key: 'date', header: 'Date', render: (row) => date(row.date) },
+        { key: 'channel', header: 'Channel' },
         { key: 'subChannel', header: 'Sub Channel' },
+        { key: 'salesType', header: 'Type' },
         { key: 'productName', header: 'Product' },
+        { key: 'customerName', header: 'Customer', render: (row) => row.customerName || '—' },
         { key: 'quantity', header: 'Qty', align: 'right' },
         { key: 'total', header: 'Total', align: 'right', render: (row) => <Money value={row.total} /> },
         { key: 'discount', header: 'Discount', align: 'right', render: (row) => <Money value={row.discount} /> },

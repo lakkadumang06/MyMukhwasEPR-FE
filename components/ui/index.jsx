@@ -1,4 +1,5 @@
 'use client';
+import { forwardRef } from 'react';
 import { cn } from '@/lib/cn';
 
 export function Button({ variant = 'primary', size = 'md', className, ...props }) {
@@ -22,9 +23,12 @@ export function Button({ variant = 'primary', size = 'md', className, ...props }
   );
 }
 
-export function Input({ className, ...props }) {
+// forwardRef is required so React Hook Form's register() ref attaches to the
+// real DOM node — without it RHF can't set values and edit popups render blank.
+export const Input = forwardRef(function Input({ className, ...props }, ref) {
   return (
     <input
+      ref={ref}
       className={cn(
         'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100',
         className,
@@ -32,11 +36,12 @@ export function Input({ className, ...props }) {
       {...props}
     />
   );
-}
+});
 
-export function Select({ className, children, ...props }) {
+export const Select = forwardRef(function Select({ className, children, ...props }, ref) {
   return (
     <select
+      ref={ref}
       className={cn(
         'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100',
         className,
@@ -46,11 +51,12 @@ export function Select({ className, children, ...props }) {
       {children}
     </select>
   );
-}
+});
 
-export function Textarea({ className, ...props }) {
+export const Textarea = forwardRef(function Textarea({ className, ...props }, ref) {
   return (
     <textarea
+      ref={ref}
       className={cn(
         'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100',
         className,
@@ -58,7 +64,7 @@ export function Textarea({ className, ...props }) {
       {...props}
     />
   );
-}
+});
 
 export function Label({ className, ...props }) {
   return <label className={cn('text-sm font-medium text-slate-600', className)} {...props} />;

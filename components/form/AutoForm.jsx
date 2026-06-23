@@ -15,6 +15,11 @@ function normalizeDefaults(fields, defaultValues = {}) {
   const out = { ...defaultValues };
   for (const f of fields) {
     const v = defaultValues[f.name];
+    // Apply a field's configured default when creating (no stored value yet).
+    if (v === undefined && f.default !== undefined) {
+      out[f.name] = f.default;
+      continue;
+    }
     if (f.type === 'date' && v) {
       // `<input type="date">` needs YYYY-MM-DD; the API returns ISO datetimes.
       const d = new Date(v);
@@ -39,6 +44,10 @@ export function AutoForm({ fields, defaultValues = {}, onSubmit, submitting, sub
 
   const coerce = (f, v) => {
     if (f.type === 'number') return v === '' || v === null ? undefined : Number(v);
+    // An unselected optional dropdown submits '' — send undefined so the API
+    // treats it as "not provided" instead of failing string validation.
+    if (f.type === 'select') return v === '' ? undefined : v;
+    if (f.type === 'checkbox') return Boolean(v);
     return v;
   };
 

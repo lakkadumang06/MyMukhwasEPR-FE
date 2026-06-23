@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { Plus, IndianRupee } from 'lucide-react';
+import { Plus, IndianRupee, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
@@ -9,7 +9,7 @@ import { AutoForm } from '@/components/form/AutoForm';
 import { Button, Card, Input, Label } from '@/components/ui';
 import { Money, StatusBadge } from '@/components/common/widgets';
 import { date } from '@/lib/format';
-import { useList, useCreate, useRawMutation } from '@/lib/useCrud';
+import { useList, useCreate, useUpdate, useRemove, useRawMutation } from '@/lib/useCrud';
 import { useAppSelector } from '@/lib/store/hooks';
 import { selectRole } from '@/lib/store/authSlice';
 import { can } from '@/lib/rbac';
@@ -21,6 +21,8 @@ export default function CreditUdhaarPage() {
   const { data: listData, isLoading, error } = useList('/credit-udhaar');
   const { data: customersData } = useList('/customers');
   const create = useCreate('/credit-udhaar');
+  const update = useUpdate('/credit-udhaar');
+  const remove = useRemove('/credit-udhaar');
   const payment = useRawMutation();
 
   const rows = Array.isArray(listData) ? listData : listData?.items || [];
@@ -32,18 +34,38 @@ export default function CreditUdhaarPage() {
     [customerItems],
   );
 
-  const [newOpen, setNewOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
   const [payRow, setPayRow] = useState(null);
   const [payAmount, setPayAmount] = useState('');
 
-  const handleCreate = async (values) => {
+  const openNew = () => {
+    setEditing(null);
+    setFormOpen(true);
+  };
+  const openEdit = (row) => {
+    setEditing(row);
+    setFormOpen(true);
+  };
+
+  const handleSubmit = async (values) => {
     const selected = customerItems.find((c) => c._id === values.customer);
     const body = {
       ...values,
       customerName: values.customerName || selected?.name || '',
     };
-    await create.mutateAsync(body);
-    setNewOpen(false);
+    if (editing) {
+      await update.mutateAsync({ id: editing._id, body });
+    } else {
+      await create.mutateAsync(body);
+    }
+    setFormOpen(false);
+  };
+
+  const handleDelete = async (row) => {
+    if (confirm('Delete this credit entry?')) {
+      await remove.mutateAsync(row._id);
+    }
   };
 
   const submitPayment = async (e) => {
@@ -82,7 +104,7 @@ export default function CreditUdhaarPage() {
     <div>
       <PageHeader title="Credit / Udhaar" subtitle="Customer credit ledger">
         {writable ? (
-          <Button onClick={() => setNewOpen(true)}>
+          <Button onClick={openNew}>
             <Plus size={16} /> New
           </Button>
         ) : null}
@@ -106,7 +128,7 @@ export default function CreditUdhaarPage() {
         actions={
           writable
             ? (row) => (
-                <div className="flex justify-end">
+                <div className="flex items-center justify-end gap-1">
                   <Button
                     size="sm"
                     variant="secondary"
@@ -118,13 +140,23 @@ export default function CreditUdhaarPage() {
                   >
                     <IndianRupee size={14} /> Record Payment
                   </Button>
+                  <Button size="sm" variant="ghost" onClick={() => openEdit(row)}>
+                    <Pencil size={15} />
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => handleDelete(row)}>
+                    <Trash2 size={15} className="text-danger" />
+                  </Button>
                 </div>
               )
             : undefined
         }
       />
 
-      <Modal open={newOpen} onClose={() => setNewOpen(false)} title="New Credit Entry">
+      <Modal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        title={editing ? 'Edit Credit Entry' : 'New Credit Entry'}
+      >
         <AutoForm
           fields={[
             { name: 'customer', label: 'Customer', type: 'select', required: true, options: customerOptions },
@@ -133,8 +165,9 @@ export default function CreditUdhaarPage() {
             { name: 'dueDate', label: 'Due Date', type: 'date', half: true },
             { name: 'orderId', label: 'Order ID', half: true },
           ]}
-          onSubmit={handleCreate}
-          submitting={create.isPending}
+          defaultValues={editing || {}}
+          onSubmit={handleSubmit}
+          submitting={create.isPending || update.isPending}
         />
       </Modal>
 

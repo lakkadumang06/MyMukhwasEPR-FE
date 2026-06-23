@@ -13,6 +13,7 @@ export default function ProductsPage() {
       columns={[
         { key: 'productCode', header: 'Code' },
         { key: 'productFamily', header: 'Family' },
+        { key: 'productName', header: 'Name' },
         { key: 'packSizeLabel', header: 'Size' },
         {
           key: 'sellingPrice',
@@ -44,6 +45,7 @@ export default function ProductsPage() {
           align: 'right',
           render: (row) => `${(row.marginPct || 0).toFixed(1)}%`,
         },
+        { key: 'isActive', header: 'Active', render: (row) => (row.isActive ? 'Yes' : 'No') },
       ]}
       fields={[
         { name: 'productCode', label: 'Product Code', required: true, half: true },
@@ -62,6 +64,7 @@ export default function ProductsPage() {
         },
         { name: 'packGrams', label: 'Pack Grams', type: 'number', half: true },
         { name: 'sellingPrice', label: 'Selling Price', type: 'number', required: true, half: true },
+        { name: 'isActive', label: 'Active', type: 'checkbox', half: true, default: true },
       ]}
     />
   );
