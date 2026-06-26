@@ -6,8 +6,8 @@ import { useList } from '@/lib/useCrud';
 import { date } from '@/lib/format';
 
 export default function PurchasesPage() {
-  const { data: vendorsData } = useList('/vendors');
-  const { data: rmData } = useList('/raw-materials');
+  const { data: vendorsData } = useList('/vendors', { limit: 500 });
+  const { data: rmData } = useList('/raw-materials', { limit: 500 });
 
   const vendors = Array.isArray(vendorsData) ? vendorsData : vendorsData?.items || [];
   const rawMaterials = Array.isArray(rmData) ? rmData : rmData?.items || [];
@@ -27,7 +27,8 @@ export default function PurchasesPage() {
       subtitle="Raw material bills from vendors"
       resource="/purchases"
       writeRoles={['manager', 'accountant']}
-      searchKeys={['billNo', 'vendorName', 'rmName']}
+      searchKeys={['billNo', 'vendorCode', 'vendorName', 'rmCode', 'rmName']}
+      mapEditValues={(row) => ({ ...row, state: row.vendorState || '', city: row.vendorCity || '' })}
       header={(data) => (
         <Card className="mb-4 flex items-center gap-2 p-4 text-sm">
           <span className="font-medium text-slate-600">Grand Total:</span>
@@ -37,7 +38,11 @@ export default function PurchasesPage() {
       columns={[
         { key: 'billNo', header: 'Bill No' },
         { key: 'purchaseDate', header: 'Date', render: (row) => date(row.purchaseDate) },
+        { key: 'vendorCode', header: 'Vendor Code' },
         { key: 'vendorName', header: 'Vendor' },
+        { key: 'vendorState', header: 'State' },
+        { key: 'vendorCity', header: 'City' },
+        { key: 'rmCode', header: 'RM Code' },
         { key: 'rmName', header: 'Raw Material' },
         { key: 'qty', header: 'Qty', align: 'right' },
         { key: 'rate', header: 'Rate', align: 'right', render: (row) => <Money value={row.rate} /> },
@@ -48,6 +53,8 @@ export default function PurchasesPage() {
         { name: 'billNo', label: 'Bill No', required: true, half: true },
         { name: 'purchaseDate', label: 'Purchase Date', type: 'date', required: true, half: true },
         { name: 'vendor', label: 'Vendor', type: 'select', required: true, options: vendorOptions },
+        { name: 'state', label: 'State', half: true },
+        { name: 'city', label: 'City', half: true },
         { name: 'rm', label: 'Raw Material', type: 'select', required: true, options: rmOptions },
         { name: 'qty', label: 'Quantity', type: 'number', required: true, half: true },
         { name: 'rate', label: 'Rate', type: 'number', required: true, half: true },

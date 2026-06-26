@@ -6,8 +6,8 @@ import { useList } from '@/lib/useCrud';
 import { date } from '@/lib/format';
 
 export default function SalesPage() {
-  const { data: productsData } = useList('/products');
-  const { data: customersData } = useList('/customers');
+  const { data: productsData } = useList('/products', { limit: 500 });
+  const { data: customersData } = useList('/customers', { limit: 500 });
 
   const products = Array.isArray(productsData) ? productsData : productsData?.items || [];
   const customers = Array.isArray(customersData) ? customersData : customersData?.items || [];

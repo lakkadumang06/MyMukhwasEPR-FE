@@ -119,7 +119,7 @@ function EmployeesSection({ writable }) {
 }
 
 function AttendanceSection() {
-  const { data: empData } = useList('/team/employees');
+  const { data: empData } = useList('/team/employees', { limit: 500 });
   const employees = Array.isArray(empData) ? empData : empData?.items || [];
 
   const [employee, setEmployee] = useState('');

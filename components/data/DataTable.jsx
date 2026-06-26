@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui';
+import { useState, useEffect, useRef } from 'react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Input, Button } from '@/components/ui';
 import { Loading, EmptyState, ErrorState } from '@/components/common/widgets';
 import { motion } from 'framer-motion';
 
@@ -9,7 +9,13 @@ import { motion } from 'framer-motion';
  * Lightweight Excel-like table.
  * columns: [{ key, header, render?(row), align?, className? }]
  * data: array of rows
- * Supports a search box (client-side filter over searchKeys) and row actions.
+ *
+ * Search modes:
+ *   - Client-side (default): filters data in memory using searchKeys
+ *   - Server-side: when `serverSearch` is true, calls `onSearch(value)` with debounce
+ *
+ * Pagination:
+ *   - When `pagination` prop is provided: { currentPage, totalPages, onPageChange }
  */
 export function DataTable({
   columns,
@@ -17,14 +23,28 @@ export function DataTable({
   isLoading,
   error,
   searchKeys,
+  serverSearch,
   onSearch,
   actions,
   emptyLabel,
+  pagination,
 }) {
   const [q, setQ] = useState('');
+  const debounceRef = useRef(null);
 
+  // Debounced server search
+  useEffect(() => {
+    if (!serverSearch) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      onSearch?.(q);
+    }, 400);
+    return () => clearTimeout(debounceRef.current);
+  }, [q, serverSearch, onSearch]);
+
+  // Client-side filter (only when not using server search)
   const filtered =
-    searchKeys && q
+    !serverSearch && searchKeys && q
       ? data.filter((row) =>
           searchKeys.some((k) =>
             String(row[k] ?? '').toLowerCase().includes(q.toLowerCase()),
@@ -42,10 +62,7 @@ export function DataTable({
               className="pl-9"
               placeholder="Search…"
               value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-                onSearch?.(e.target.value);
-              }}
+              onChange={(e) => setQ(e.target.value)}
             />
           </div>
         </div>
@@ -105,6 +122,33 @@ export function DataTable({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3">
+          <span className="text-xs text-slate-500">
+            Page {pagination.currentPage} of {pagination.totalPages}
+          </span>
+          <div className="flex gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={pagination.currentPage <= 1}
+              onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
+            >
+              <ChevronLeft size={16} /> Prev
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={pagination.currentPage >= pagination.totalPages}
+              onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
+            >
+              Next <ChevronRight size={16} />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

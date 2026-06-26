@@ -13,13 +13,32 @@ export default function RawMaterialsPage() {
       columns={[
         { key: 'rmCode', header: 'Code' },
         { key: 'name', header: 'Name' },
-        { key: 'category', header: 'Category' },
         { key: 'unit', header: 'Unit' },
         {
           key: 'defaultRate',
           header: 'Default Rate',
           align: 'right',
           render: (row) => <Money value={row.defaultRate} />,
+        },
+        { key: 'category', header: 'Category' },
+        { key: 'notes', header: 'Notes' },
+        {
+          key: 'latestRate',
+          header: 'Latest Rate',
+          align: 'right',
+          render: (row) => <Money value={row.rateInfo?.latestRate} />,
+        },
+        {
+          key: 'avg30d',
+          header: '30 Day Avg',
+          align: 'right',
+          render: (row) => <Money value={row.rateInfo?.avg30d} />,
+        },
+        {
+          key: 'avgAllTime',
+          header: 'All Time Avg',
+          align: 'right',
+          render: (row) => <Money value={row.rateInfo?.avgAllTime} />,
         },
         {
           key: 'activeRate',
@@ -28,9 +47,16 @@ export default function RawMaterialsPage() {
           render: (row) => <Money value={row.rateInfo?.activeRate} />,
         },
         {
-          key: 'rateSource',
-          header: 'Rate Source',
-          render: (row) => row.rateInfo?.rateSource,
+          key: 'minRate',
+          header: 'Min Rate',
+          align: 'right',
+          render: (row) => <Money value={row.rateInfo?.minRate} />,
+        },
+        {
+          key: 'maxRate',
+          header: 'Max Rate',
+          align: 'right',
+          render: (row) => <Money value={row.rateInfo?.maxRate} />,
         },
       ]}
       fields={[

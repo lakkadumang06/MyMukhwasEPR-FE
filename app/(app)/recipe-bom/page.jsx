@@ -17,7 +17,7 @@ export default function RecipeBomPage() {
   const writable = can(role, ['manager', 'production']);
 
   const { data, isLoading, error } = useList('/recipe-bom');
-  const { data: rmData } = useList('/raw-materials');
+  const { data: rmData } = useList('/raw-materials', { limit: 500 });
 
   const create = useCreate('/recipe-bom');
   const update = useUpdate('/recipe-bom');

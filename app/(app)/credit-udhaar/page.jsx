@@ -19,7 +19,7 @@ export default function CreditUdhaarPage() {
   const writable = can(role, ['accountant', 'manager']);
 
   const { data: listData, isLoading, error } = useList('/credit-udhaar');
-  const { data: customersData } = useList('/customers');
+  const { data: customersData } = useList('/customers', { limit: 500 });
   const create = useCreate('/credit-udhaar');
   const update = useUpdate('/credit-udhaar');
   const remove = useRemove('/credit-udhaar');
