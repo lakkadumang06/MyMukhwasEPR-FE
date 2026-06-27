@@ -1,11 +1,12 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useGet } from '@/lib/useCrud';
 
 export function AlertsBell() {
   const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
   const { data } = useGet('/dashboard/alerts', {}, { pollingInterval: 60000 });
 
   const a = data || {};
@@ -25,8 +26,19 @@ export function AlertsBell() {
     { label: 'Pending purchase payments', value: a.pendingPayments?.purchases || 0 },
   ];
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100"
@@ -44,6 +56,7 @@ export function AlertsBell() {
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
             className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-3 shadow-lg"
           >
             <p className="mb-2 text-sm font-semibold text-slate-700">Alerts</p>

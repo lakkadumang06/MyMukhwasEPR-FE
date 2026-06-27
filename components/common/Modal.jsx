@@ -14,7 +14,7 @@ export function Modal({ open, onClose, title, children, width = 'max-w-lg' }) {
           onClick={onClose}
         >
           <motion.div
-            className={`w-full ${width} rounded-2xl bg-white shadow-xl`}
+            className={`w-[95%] ${width} sm:max-w-lg rounded-2xl bg-white shadow-xl`}
             initial={{ opacity: 0, scale: 0.96, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}

@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { LogOut } from 'lucide-react';
+import { LogOut, Menu } from 'lucide-react';
 import { AlertsBell } from './AlertsBell';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { logout as logoutAction, selectUser } from '@/lib/store/authSlice';
@@ -24,7 +24,7 @@ function initials(name = '') {
   );
 }
 
-export function Topbar() {
+export function Topbar({ onMenuClick }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
@@ -41,19 +41,31 @@ export function Topbar() {
   });
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/80 px-6 py-3 backdrop-blur">
-      <div>
-        <p className="text-sm font-semibold text-slate-800">
-          {greeting()}, {user?.name?.split(' ')[0] || 'there'} 👋
-        </p>
-        <p className="text-xs text-slate-400">{today}</p>
+    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur sm:px-6">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMenuClick}
+          className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 md:hidden"
+          title="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+        <div>
+          <p className="text-sm font-semibold text-slate-800 hidden sm:block">
+            {greeting()}, {user?.name?.split(' ')[0] || 'there'} 👋
+          </p>
+          <p className="text-sm font-semibold text-slate-800 sm:hidden">
+            {greeting()} 👋
+          </p>
+          <p className="text-xs text-slate-400">{today}</p>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
         <AlertsBell />
         <div className="mx-1 h-8 w-px bg-slate-200" />
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 text-xs font-semibold text-white">
+          <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-brand-600 text-xs font-semibold text-white">
             {initials(user?.name)}
           </div>
           <div className="hidden text-right sm:block">

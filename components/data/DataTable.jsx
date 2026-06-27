@@ -72,7 +72,7 @@ export function DataTable({
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
               {columns.map((c) => (
-                <th key={c.key} className={`px-4 py-2.5 font-semibold ${c.align === 'right' ? 'text-right' : ''}`}>
+                <th key={c.key} className={`whitespace-nowrap px-4 py-2.5 font-semibold ${c.align === 'right' ? 'text-right' : ''}`}>
                   {c.header}
                 </th>
               ))}
@@ -110,7 +110,7 @@ export function DataTable({
                   {columns.map((c) => (
                     <td
                       key={c.key}
-                      className={`px-4 py-2.5 ${c.align === 'right' ? 'text-right tnum' : ''} ${c.className || ''}`}
+                      className={`whitespace-nowrap px-4 py-2.5 ${c.align === 'right' ? 'text-right tnum' : ''} ${c.className || ''}`}
                     >
                       {c.render ? c.render(row) : row[c.key]}
                     </td>

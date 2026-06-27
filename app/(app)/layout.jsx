@@ -11,6 +11,7 @@ export default function AppLayout({ children }) {
   const router = useRouter();
   const token = useAppSelector(selectToken);
   const [ready, setReady] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!token) router.replace('/login');
@@ -20,11 +21,14 @@ export default function AppLayout({ children }) {
   if (!ready) return <BrandLoader label="Preparing your workspace…" />;
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+    <div className="flex h-[100dvh] overflow-hidden">
+      <Sidebar 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)} 
+      />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <Topbar onMenuClick={() => setIsMobileMenuOpen(true)} />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

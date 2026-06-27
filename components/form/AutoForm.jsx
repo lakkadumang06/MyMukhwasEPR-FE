@@ -61,9 +61,9 @@ export function AutoForm({ fields, defaultValues = {}, onSubmit, submitting, sub
   };
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="grid grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit(submit)} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {fields.map((f) => (
-        <div key={f.name} className={f.half ? 'col-span-1' : 'col-span-2'}>
+        <div key={f.name} className={f.half ? 'col-span-1' : 'col-span-1 sm:col-span-2'}>
           <Label className="mb-1 block">
             {f.label}
             {f.required ? <span className="text-danger"> *</span> : null}
@@ -102,7 +102,7 @@ export function AutoForm({ fields, defaultValues = {}, onSubmit, submitting, sub
         </div>
       ))}
 
-      <div className="col-span-2 mt-2 flex justify-end">
+      <div className="col-span-1 sm:col-span-2 mt-2 flex justify-end">
         <Button type="submit" disabled={submitting}>
           {submitting ? 'Saving…' : submitLabel}
         </Button>
