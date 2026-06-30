@@ -132,6 +132,7 @@ export default function ProductionPage() {
   const columns = [
     { key: 'batchNo', header: 'Batch No' },
     { key: 'date', header: 'Date', render: (row) => date(row.date) },
+    { key: 'productCode', header: 'Product Code' },
     { key: 'productName', header: 'Product' },
     { key: 'packSizeLabel', header: 'Pack Size' },
     { key: 'qtyMadePacks', header: 'Qty (packs)', align: 'right' },

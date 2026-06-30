@@ -23,7 +23,7 @@ export default function ProductsPage() {
         },
         {
           key: 'foodCostPerPack',
-          header: 'Food Cost',
+          header: 'Good Cost',
           align: 'right',
           render: (row) => <Money value={row.foodCostPerPack} />,
         },
@@ -38,12 +38,6 @@ export default function ProductsPage() {
           header: 'Profit / Pack',
           align: 'right',
           render: (row) => <Money value={row.profitPerPack} />,
-        },
-        {
-          key: 'marginPct',
-          header: 'Margin %',
-          align: 'right',
-          render: (row) => `${(row.marginPct || 0).toFixed(1)}%`,
         },
         { key: 'isActive', header: 'Active', render: (row) => (row.isActive ? 'Yes' : 'No') },
       ]}

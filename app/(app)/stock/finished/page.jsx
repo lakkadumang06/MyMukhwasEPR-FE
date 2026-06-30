@@ -26,8 +26,6 @@ export default function FinishedGoodsStockPage() {
     { key: 'productName', header: 'Product Name' },
     { key: 'packSizeLabel', header: 'Pack Size' },
     { key: 'sellingPrice', header: 'Selling Price', align: 'right', render: (r) => <Money value={r.sellingPrice} /> },
-    { key: 'totalProduced', header: 'Total Produced', align: 'right' },
-    { key: 'totalSold', header: 'Total Sold', align: 'right' },
     {
       key: 'currentStock',
       header: 'Current Stock',

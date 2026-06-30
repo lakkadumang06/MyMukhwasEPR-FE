@@ -59,11 +59,8 @@ export default function RawMaterialStockPage() {
     { key: 'unit', header: 'Unit' },
     { key: 'category', header: 'Category' },
     { key: 'totalPurchased', header: 'Total Purchased', align: 'right' },
-    { key: 'usedInProduction', header: 'Used In Production', align: 'right' },
-    { key: 'currentStock', header: 'Current Stock', align: 'right' },
     { key: 'rate', header: 'Rate', align: 'right', render: (r) => <Money value={r.rate} /> },
     { key: 'stockValue', header: 'Stock Value', align: 'right', render: (r) => <Money value={r.stockValue} /> },
-    { key: 'batchValueFifo', header: 'Batch Value (FIFO)', align: 'right', render: (r) => <Money value={r.batchValueFifo} /> },
     { key: 'status', header: 'Status', render: (r) => <StatusBadge value={r.status} /> },
   ];
 

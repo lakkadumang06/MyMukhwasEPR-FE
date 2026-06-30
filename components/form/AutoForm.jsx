@@ -1,6 +1,7 @@
 'use client';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Button, Input, Label, Select, Textarea } from '@/components/ui';
+import { SearchSelect } from '@/components/form/SearchSelect';
 
 /**
  * Config-driven form.
@@ -24,7 +25,7 @@ function normalizeDefaults(fields, defaultValues = {}) {
       // `<input type="date">` needs YYYY-MM-DD; the API returns ISO datetimes.
       const d = new Date(v);
       out[f.name] = Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
-    } else if (f.type === 'select' && v != null && typeof v === 'object') {
+    } else if ((f.type === 'select' || f.type === 'searchSelect') && v != null && typeof v === 'object') {
       // Reference fields may arrive populated — fall back to the _id for the option value.
       out[f.name] = v._id ?? v.value ?? '';
     } else if (f.type === 'number' && (v === null || v === undefined)) {
@@ -39,6 +40,7 @@ export function AutoForm({ fields, defaultValues = {}, onSubmit, submitting, sub
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm({ defaultValues: initialValues });
 
@@ -46,7 +48,7 @@ export function AutoForm({ fields, defaultValues = {}, onSubmit, submitting, sub
     if (f.type === 'number') return v === '' || v === null ? undefined : Number(v);
     // An unselected optional dropdown submits '' — send undefined so the API
     // treats it as "not provided" instead of failing string validation.
-    if (f.type === 'select') return v === '' ? undefined : v;
+    if (f.type === 'select' || f.type === 'searchSelect') return v === '' ? undefined : v;
     if (f.type === 'checkbox') return Boolean(v);
     return v;
   };
@@ -69,7 +71,22 @@ export function AutoForm({ fields, defaultValues = {}, onSubmit, submitting, sub
             {f.required ? <span className="text-danger"> *</span> : null}
           </Label>
 
-          {f.type === 'select' ? (
+          {f.type === 'searchSelect' ? (
+            <Controller
+              name={f.name}
+              control={control}
+              rules={{ required: f.required }}
+              render={({ field: { value, onChange } }) => (
+                <SearchSelect
+                  value={value || ''}
+                  onChange={onChange}
+                  options={f.options || []}
+                  required={f.required}
+                  name={f.name}
+                />
+              )}
+            />
+          ) : f.type === 'select' ? (
             <Select
               defaultValue={initialValues[f.name] ?? ''}
               disabled={f.readOnly}

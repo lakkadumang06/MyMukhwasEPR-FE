@@ -28,7 +28,6 @@ export default function PurchasesPage() {
       resource="/purchases"
       writeRoles={['manager', 'accountant']}
       searchKeys={['billNo', 'vendorCode', 'vendorName', 'rmCode', 'rmName']}
-      mapEditValues={(row) => ({ ...row, state: row.vendorState || '', city: row.vendorCity || '' })}
       header={(data) => (
         <Card className="mb-4 flex items-center gap-2 p-4 text-sm">
           <span className="font-medium text-slate-600">Grand Total:</span>
@@ -40,24 +39,30 @@ export default function PurchasesPage() {
         { key: 'purchaseDate', header: 'Date', render: (row) => date(row.purchaseDate) },
         { key: 'vendorCode', header: 'Vendor Code' },
         { key: 'vendorName', header: 'Vendor' },
-        { key: 'vendorState', header: 'State' },
         { key: 'vendorCity', header: 'City' },
         { key: 'rmCode', header: 'RM Code' },
         { key: 'rmName', header: 'Raw Material' },
         { key: 'qty', header: 'Qty', align: 'right' },
         { key: 'rate', header: 'Rate', align: 'right', render: (row) => <Money value={row.rate} /> },
+        { key: 'gstPercent', header: 'GST %', align: 'right', render: (row) => `${row.gstPercent || 0}%` },
+        { key: 'gstAmount', header: 'GST Amt', align: 'right', render: (row) => <Money value={row.gstAmount} /> },
         { key: 'totalAmount', header: 'Total', align: 'right', render: (row) => <Money value={row.totalAmount} /> },
         { key: 'paymentStatus', header: 'Payment', render: (row) => <StatusBadge value={row.paymentStatus} /> },
       ]}
-      fields={[
+      fields={() => [
         { name: 'billNo', label: 'Bill No', required: true, half: true },
         { name: 'purchaseDate', label: 'Purchase Date', type: 'date', required: true, half: true },
         { name: 'vendor', label: 'Vendor', type: 'select', required: true, options: vendorOptions },
-        { name: 'state', label: 'State', half: true },
         { name: 'city', label: 'City', half: true },
-        { name: 'rm', label: 'Raw Material', type: 'select', required: true, options: rmOptions },
+        { name: 'rm', label: 'Raw Material', type: 'searchSelect', required: true, options: rmOptions },
         { name: 'qty', label: 'Quantity', type: 'number', required: true, half: true },
         { name: 'rate', label: 'Rate', type: 'number', required: true, half: true },
+        { name: 'gstPercent', label: 'GST %', type: 'select', half: true, default: 0, options: [
+            { value: 0, label: '0%' },
+            { value: 5, label: '5%' },
+            { value: 12, label: '12%' },
+            { value: 18, label: '18%' },
+        ] },
         {
           name: 'paymentStatus',
           label: 'Payment Status',

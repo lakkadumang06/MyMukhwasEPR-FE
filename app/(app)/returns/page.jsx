@@ -44,6 +44,7 @@ export default function ReturnsPage() {
         { key: 'returnReason', header: 'Reason' },
         { key: 'returnType', header: 'Type' },
         { key: 'restocked', header: 'Restocked', render: (row) => (row.restocked ? 'Yes' : 'No') },
+        { key: 'videoCompleted', header: 'Video', render: (row) => (row.videoCompleted ? 'Yes' : 'No') },
         { key: 'status', header: 'Status', render: (row) => <StatusBadge value={row.status} /> },
       ]}
       fields={[
@@ -57,10 +58,8 @@ export default function ReturnsPage() {
           type: 'select',
           half: true,
           options: [
-            { value: 'Damaged', label: 'Damaged' },
-            { value: 'Wrong Item', label: 'Wrong Item' },
-            { value: 'Quality', label: 'Quality' },
-            { value: 'Other', label: 'Other' },
+            { value: 'Okay', label: 'Okay' },
+            { value: 'Defective', label: 'Defective' },
           ],
         },
         {
@@ -74,6 +73,7 @@ export default function ReturnsPage() {
           ],
         },
         { name: 'restocked', label: 'Restocked', type: 'checkbox' },
+        { name: 'videoCompleted', label: 'Video Completed', type: 'checkbox' },
         {
           name: 'status',
           label: 'Status',

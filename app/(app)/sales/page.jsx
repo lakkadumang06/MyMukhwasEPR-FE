@@ -47,7 +47,6 @@ export default function SalesPage() {
         { key: 'subChannel', header: 'Sub Channel' },
         { key: 'salesType', header: 'Type' },
         { key: 'productName', header: 'Product' },
-        { key: 'customerName', header: 'Customer', render: (row) => row.customerName || '—' },
         { key: 'quantity', header: 'Qty', align: 'right' },
         { key: 'total', header: 'Total', align: 'right', render: (row) => <Money value={row.total} /> },
         { key: 'discount', header: 'Discount', align: 'right', render: (row) => <Money value={row.discount} /> },
@@ -107,6 +106,7 @@ export default function SalesPage() {
             { value: 'Cash', label: 'Cash' },
             { value: 'Bank Transfer', label: 'Bank Transfer' },
             { value: 'Credit-Udhaar', label: 'Credit-Udhaar' },
+            { value: 'Eazebuzz', label: 'Eazebuzz' },
           ],
         },
         {
@@ -119,7 +119,6 @@ export default function SalesPage() {
             { value: 'Pending', label: 'Pending' },
           ],
         },
-        { name: 'customer', label: 'Customer', type: 'select', options: customerOptions },
       ]}
     />
   );
