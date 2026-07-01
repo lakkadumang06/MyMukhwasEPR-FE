@@ -89,6 +89,18 @@ export default function RecipeBomPage() {
 
       {isLoading && <p className="p-4 text-sm text-slate-500">Loading…</p>}
 
+      {/* Summary strip */}
+      {!isLoading && Object.keys(familyGroups).length > 0 && (
+        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <GlassCard className="p-4"><p className="text-xs text-slate-500">Recipes</p><p className="mt-1 text-lg font-semibold text-brand-800 tnum">{Object.keys(familyGroups).length}</p></GlassCard>
+          <GlassCard className="p-4"><p className="text-xs text-slate-500">Ingredients Mapped</p><p className="mt-1 text-lg font-semibold text-brand-800 tnum">{rows.length}</p></GlassCard>
+          <GlassCard className="p-4"><p className="text-xs text-slate-500">Avg Cost / Kg (incl. GST)</p><p className="mt-1 text-lg font-semibold text-brand-800 tnum">{inr(
+            Object.values(familyGroups).reduce((s, items) => s + items.reduce((a, r) => a + (r.costWithGst || 0), 0), 0) /
+              (Object.keys(familyGroups).length || 1),
+          )}</p></GlassCard>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
         {Object.entries(familyGroups).map(([family, items]) => {
           const totalGrams = items.reduce((s, r) => s + (r.gramsPerKg || 0), 0);
@@ -118,30 +130,39 @@ export default function RecipeBomPage() {
 
               {/* Ingredient list */}
               <div className="flex-1 divide-y divide-white/40">
-                {items.map((row) => (
-                  <div key={row._id} className="group flex items-center justify-between px-5 py-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-slate-800">
-                        {codeLabel(row.rmCode, row.rmName)}
-                      </p>
-                      <p className="text-xs text-slate-500 tnum">
-                        {row.gramsPerKg}g/Kg · {inr(row.ratePerKg)}/Kg · GST {row.gstPercent || 0}%
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-slate-800 tnum">{inr(row.costWithGst)}</p>
-                        <p className="text-[11px] text-slate-400 tnum">base {inr(row.costPerKgProduct)}</p>
-                      </div>
-                      {writable && (
-                        <div className="flex opacity-0 transition-opacity group-hover:opacity-100">
-                          <GlassButton size="sm" variant="ghost" onClick={() => openEdit(row)}><Pencil size={14} /></GlassButton>
-                          <GlassButton size="sm" variant="ghost" onClick={() => setDeleteTarget(row)}><Trash2 size={14} className="text-danger" /></GlassButton>
+                {items.map((row) => {
+                  const share = totalGrams ? Math.round((row.gramsPerKg / totalGrams) * 100) : 0;
+                  return (
+                    <div key={row._id} className="group px-5 py-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <span className="shrink-0 rounded-lg bg-brand-500/15 px-2 py-0.5 text-xs font-semibold text-brand-700 tnum backdrop-blur">
+                            {row.gramsPerKg}g
+                          </span>
+                          <p className="truncate text-sm font-medium text-slate-800">
+                            {codeLabel(row.rmCode, row.rmName)}
+                          </p>
                         </div>
-                      )}
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-slate-800 tnum">{inr(row.costWithGst)}</p>
+                            <p className="text-[11px] text-slate-400 tnum">GST {row.gstPercent || 0}% · {inr(row.ratePerKg)}/Kg</p>
+                          </div>
+                          {writable && (
+                            <div className="flex opacity-0 transition-opacity group-hover:opacity-100">
+                              <GlassButton size="sm" variant="ghost" onClick={() => openEdit(row)}><Pencil size={14} /></GlassButton>
+                              <GlassButton size="sm" variant="ghost" onClick={() => setDeleteTarget(row)}><Trash2 size={14} className="text-danger" /></GlassButton>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {/* Proportion bar (share of recipe by weight) */}
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/50">
+                        <div className="h-full rounded-full bg-brand-500/70" style={{ width: `${share}%` }} />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Grand total footer (incl. dynamically-calculated GST) */}
