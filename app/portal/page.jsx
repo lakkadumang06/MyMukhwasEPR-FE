@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Plus, Minus, ShoppingCart, LogOut, PackageCheck, Trash2 } from 'lucide-react';
 import { GlassCard, GlassButton, StatusPill } from '@/components/ui/glass';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { computeGst } from '@/components/form/GstCalculator';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { selectToken, selectRole, selectUser, logout } from '@/lib/store/authSlice';
@@ -38,6 +39,7 @@ export default function PortalDashboard() {
   const [cart, setCart] = useState({});
   const [gstPercent, setGstPercent] = useState(0);
   const [notes, setNotes] = useState('');
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const add = (id) => setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
   const sub = (id) => setCart((c) => { const n = (c[id] || 0) - 1; const nc = { ...c }; if (n <= 0) delete nc[id]; else nc[id] = n; return nc; });
@@ -86,7 +88,7 @@ export default function PortalDashboard() {
           <p className="text-sm font-semibold">Wholesale Portal</p>
           <p className="text-xs text-white/70">{user?.name}</p>
         </div>
-        <GlassButton size="sm" variant="ghost" className="text-white" onClick={() => { dispatch(logout()); router.replace('/login'); }}>
+        <GlassButton size="sm" variant="ghost" className="text-white" onClick={() => setConfirmLogout(true)}>
           <LogOut size={16} /> Logout
         </GlassButton>
       </div>
@@ -177,6 +179,16 @@ export default function PortalDashboard() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmLogout}
+        onClose={() => setConfirmLogout(false)}
+        onConfirm={() => { dispatch(logout()); router.replace('/login'); }}
+        title="Log out?"
+        message="You will be signed out and returned to the login screen."
+        confirmLabel="Log out"
+        variant="danger"
+      />
     </div>
   );
 }

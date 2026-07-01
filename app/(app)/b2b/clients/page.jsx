@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Copy, KeyRound, Store } from 'lucide-react';
+import { Plus, Pencil, Trash2, KeyRound, Store } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
 import { Modal } from '@/components/common/Modal';
@@ -34,7 +33,6 @@ export default function B2BClientsPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const setField = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
   const openNew = () => { setEditing(null); setForm(blank); setOpen(true); };
   const openEdit = (row) => {
@@ -50,15 +48,9 @@ export default function B2BClientsPage() {
       if (form.password) body.password = form.password;
       await update.mutateAsync({ id: editing._id, body });
     } else {
-      const res = await create.mutateAsync(form);
-      if (res?.portalLink) toast.success(`Portal link: ${origin}${res.portalLink}`);
+      await create.mutateAsync(form);
     }
     setOpen(false);
-  };
-
-  const copyLink = (link) => {
-    navigator.clipboard?.writeText(`${origin}${link}`);
-    toast.success('Portal link copied');
   };
 
   const columns = [
@@ -66,11 +58,6 @@ export default function B2BClientsPage() {
     { key: 'contactName', header: 'Contact' },
     { key: 'city', header: 'City' },
     { key: 'email', header: 'Login Email' },
-    { key: 'portalLink', header: 'Portal Link', render: (r) => (
-      <button onClick={() => copyLink(r.portalLink)} className="squish inline-flex items-center gap-1 rounded-lg bg-white/50 px-2 py-1 text-xs text-brand-700 backdrop-blur hover:bg-white/70">
-        <Copy size={12} /> {r.portalSlug}
-      </button>
-    ) },
     { key: 'isActive', header: 'Status', render: (r) => <StatusPill status={r.isActive ? 'Delivered' : 'Cancelled'} className="!capitalize" /> },
   ];
 

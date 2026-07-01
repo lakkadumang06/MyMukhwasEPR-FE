@@ -1,10 +1,15 @@
 'use client';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 /**
  * A styled confirmation dialog to replace the native browser confirm().
+ * Rendered through a portal to <body> so it always centers on the viewport —
+ * otherwise a `backdrop-blur`/transform ancestor (e.g. the Topbar) would become
+ * the containing block for our fixed overlay and trap it in a corner.
  * Props:
  *   open, onClose, onConfirm, title, message, confirmLabel, variant
  */
@@ -17,11 +22,16 @@ export function ConfirmDialog({
   confirmLabel = 'Delete',
   variant = 'danger',
 }) {
-  return (
+  // Portals need the DOM — only render on the client after mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -65,6 +75,7 @@ export function ConfirmDialog({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
