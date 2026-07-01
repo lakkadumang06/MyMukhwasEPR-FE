@@ -16,6 +16,64 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* ------------------------------------------------------------------ */
+/*  iOS "Liquid Glass" design language                                 */
+/*  Frosted, semi-transparent surfaces. IMPORTANT: backgrounds must    */
+/*  keep an alpha channel — never override with a solid color/gradient */
+/*  or the backdrop-blur has nothing to show through.                  */
+/* ------------------------------------------------------------------ */
+@layer components {
+  /* Standard frosted card */
+  .glass {
+    @apply border border-white/40 bg-white/60 shadow-[0_8px_32px_rgba(15,51,28,0.10)] backdrop-blur-xl backdrop-saturate-150;
+  }
+  /* Softer, more transparent panel (for nested surfaces) */
+  .glass-soft {
+    @apply border border-white/30 bg-white/40 shadow-[0_4px_20px_rgba(15,51,28,0.06)] backdrop-blur-lg;
+  }
+  /* Brand-tinted glass (headers / highlighted cards) */
+  .glass-brand {
+    @apply border border-white/30 bg-brand-500/15 shadow-[0_8px_32px_rgba(15,51,28,0.14)] backdrop-blur-xl backdrop-saturate-150;
+  }
+  /* Dark glass (portal top bars, footers) */
+  .glass-dark {
+    @apply border border-white/10 bg-brand-900/60 text-white shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-xl;
+  }
+  /* Frosted input surface */
+  .glass-input {
+    @apply border border-white/50 bg-white/50 backdrop-blur-md focus:border-brand-500 focus:bg-white/70;
+  }
+}
+
+/* Ambient blobs behind glass so the blur has color to sample */
+.glass-bg {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(42rem 42rem at 10% -10%, rgba(42, 128, 80, 0.18), transparent 60%),
+    radial-gradient(38rem 38rem at 110% 10%, rgba(192, 24, 44, 0.10), transparent 55%),
+    radial-gradient(40rem 40rem at 50% 120%, rgba(24, 88, 48, 0.14), transparent 60%),
+    #eef6f1;
+}
+
+/* Springy / squishy tap feedback for buttons & status dropdowns */
+@keyframes glass-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.93); }
+  70% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: glass-pop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* Fallback squish when framer-motion isn't wrapping the element */
+.squish {
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.squish:active {
+  transform: scale(0.94);
+}
+
 /* Hide scrollbars everywhere (content still scrolls) */
 * {
   scrollbar-width: none; /* Firefox */

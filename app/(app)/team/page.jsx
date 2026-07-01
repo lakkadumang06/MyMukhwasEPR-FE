@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
 import { Modal } from '@/components/common/Modal';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { AutoForm } from '@/components/form/AutoForm';
 import { Money, StatusBadge } from '@/components/common/widgets';
 import { Button, Card, Input, Label, Select } from '@/components/ui';
@@ -32,6 +33,7 @@ function EmployeesSection({ writable }) {
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const rows = Array.isArray(data) ? data : data?.items || [];
 
@@ -53,9 +55,10 @@ function EmployeesSection({ writable }) {
     setOpen(false);
   };
 
-  const handleDelete = async (row) => {
-    if (confirm('Delete this Employee?')) {
-      await remove.mutateAsync(row._id);
+  const handleDeleteConfirm = async () => {
+    if (deleteTarget) {
+      await remove.mutateAsync(deleteTarget._id);
+      setDeleteTarget(null);
     }
   };
 
@@ -93,7 +96,7 @@ function EmployeesSection({ writable }) {
                   <Button size="sm" variant="ghost" onClick={() => openEdit(row)}>
                     <Pencil size={15} />
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => handleDelete(row)}>
+                  <Button size="sm" variant="ghost" onClick={() => setDeleteTarget(row)}>
                     <Trash2 size={15} className="text-danger" />
                   </Button>
                 </div>
@@ -114,6 +117,16 @@ function EmployeesSection({ writable }) {
           submitting={create.isPending || update.isPending}
         />
       </Modal>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Employee"
+        message={`Are you sure you want to delete ${deleteTarget?.name || 'this employee'}? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+      />
     </section>
   );
 }

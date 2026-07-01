@@ -5,18 +5,20 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import { BrandLoader } from '@/components/common/Loader';
 import { useAppSelector } from '@/lib/store/hooks';
-import { selectToken } from '@/lib/store/authSlice';
+import { selectToken, selectRole } from '@/lib/store/authSlice';
 
 export default function AppLayout({ children }) {
   const router = useRouter();
   const token = useAppSelector(selectToken);
+  const role = useAppSelector(selectRole);
   const [ready, setReady] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!token) router.replace('/login');
+    else if (role === 'wholesaler') router.replace('/portal'); // restricted users
     else setReady(true);
-  }, [token, router]);
+  }, [token, role, router]);
 
   if (!ready) return <BrandLoader label="Preparing your workspace…" />;
 

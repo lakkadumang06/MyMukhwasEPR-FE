@@ -1,7 +1,9 @@
 'use client';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut, Menu } from 'lucide-react';
 import { AlertsBell } from './AlertsBell';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { logout as logoutAction, selectUser } from '@/lib/store/authSlice';
 
@@ -28,6 +30,7 @@ export function Topbar({ onMenuClick }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const handleLogout = () => {
     dispatch(logoutAction());
@@ -74,13 +77,23 @@ export function Topbar({ onMenuClick }) {
           </div>
         </div>
         <button
-          onClick={handleLogout}
+          onClick={() => setConfirmLogout(true)}
           className="ml-1 rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
           title="Logout"
         >
           <LogOut size={18} />
         </button>
       </div>
+
+      <ConfirmDialog
+        open={confirmLogout}
+        onClose={() => setConfirmLogout(false)}
+        onConfirm={handleLogout}
+        title="Log out?"
+        message="You will be signed out and returned to the login screen."
+        confirmLabel="Log out"
+        variant="danger"
+      />
     </header>
   );
 }

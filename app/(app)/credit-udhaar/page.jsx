@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
 import { Modal } from '@/components/common/Modal';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { AutoForm } from '@/components/form/AutoForm';
 import { Button, Card, Input, Label } from '@/components/ui';
 import { Money, StatusBadge } from '@/components/common/widgets';
@@ -38,6 +39,7 @@ export default function CreditUdhaarPage() {
   const [editing, setEditing] = useState(null);
   const [payRow, setPayRow] = useState(null);
   const [payAmount, setPayAmount] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const openNew = () => {
     setEditing(null);
@@ -62,9 +64,10 @@ export default function CreditUdhaarPage() {
     setFormOpen(false);
   };
 
-  const handleDelete = async (row) => {
-    if (confirm('Delete this credit entry?')) {
-      await remove.mutateAsync(row._id);
+  const handleDeleteConfirm = async () => {
+    if (deleteTarget) {
+      await remove.mutateAsync(deleteTarget._id);
+      setDeleteTarget(null);
     }
   };
 
@@ -143,7 +146,7 @@ export default function CreditUdhaarPage() {
                   <Button size="sm" variant="ghost" onClick={() => openEdit(row)}>
                     <Pencil size={15} />
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => handleDelete(row)}>
+                  <Button size="sm" variant="ghost" onClick={() => setDeleteTarget(row)}>
                     <Trash2 size={15} className="text-danger" />
                   </Button>
                 </div>
@@ -200,6 +203,18 @@ export default function CreditUdhaarPage() {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Credit Entry"
+        message={`Are you sure you want to delete this credit entry${
+          deleteTarget?.customerName ? ` for ${deleteTarget.customerName}` : ''
+        }? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -5,8 +5,8 @@ import { Money } from '@/components/common/widgets';
 export default function CustomersPage() {
   return (
     <CrudPage
-      title="Customers"
-      subtitle="Offline / Online / B2B with credit tracking"
+      title="B2C Customers"
+      subtitle="Offline / Online / B2C with credit tracking"
       resource="/customers"
       writeRoles={['sales', 'manager']}
       searchKeys={['name', 'mobile']}

@@ -1,4 +1,20 @@
 'use client';
+
+// ---------------------------------------------------------------------------
+// Stock Batches (FIFO) page — TEMPORARILY DISABLED / HIDDEN.
+// This page is not shown in the app right now (it is also not linked from the
+// sidebar nav). The full implementation is preserved below in a comment so it
+// can be restored later. The route still renders a harmless placeholder so a
+// direct visit to /stock-batches does not crash.
+// To re-enable: uncomment the block below, delete the placeholder export, and
+// add the nav item back in FE/lib/nav.js under the "Purchasing" group.
+// ---------------------------------------------------------------------------
+
+export default function StockBatchesPage() {
+  return null;
+}
+
+/*
 import { useGet } from '@/lib/useCrud';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/data/DataTable';
@@ -45,3 +61,4 @@ export default function StockBatchesPage() {
     </div>
   );
 }
+*/

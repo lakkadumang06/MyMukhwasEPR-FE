@@ -29,7 +29,8 @@ export default function LoginPage() {
       const data = await login({ email, password }).unwrap();
       dispatch(setAuth(data));
       toast.success(`Welcome, ${data.user.name}`);
-      router.push('/dashboard');
+      // Wholesale clients get the restricted mobile portal; staff get the ERP.
+      router.push(data.user?.role === 'wholesaler' ? '/portal' : '/dashboard');
     } catch (err) {
       toast.error(err?.message || 'Login failed');
     }
@@ -155,7 +156,14 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" size="lg" className="w-full text-sm" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign In'}
+              {loading ? (
+                <>
+                  <SpinnerIcon className="h-4 w-4 animate-spin" />
+                  Signing in…
+                </>
+              ) : (
+                'Sign In'
+              )}
             </Button>
           </form>
 
@@ -170,6 +178,14 @@ export default function LoginPage() {
 }
 
 /* ---- inline icons ---- */
+function SpinnerIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+    </svg>
+  );
+}
 function MailIcon(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
