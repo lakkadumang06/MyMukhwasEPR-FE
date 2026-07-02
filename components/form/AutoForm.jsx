@@ -2,6 +2,7 @@
 import { useForm, Controller } from 'react-hook-form';
 import { Button, Input, Label, Select, Textarea } from '@/components/ui';
 import { SearchSelect } from '@/components/form/SearchSelect';
+import { DatePicker } from '@/components/common/DatePicker';
 
 /**
  * Config-driven form.
@@ -22,7 +23,7 @@ function normalizeDefaults(fields, defaultValues = {}) {
       continue;
     }
     if (f.type === 'date' && v) {
-      // `<input type="date">` needs YYYY-MM-DD; the API returns ISO datetimes.
+      // DatePicker uses YYYY-MM-DD strings; the API returns ISO datetimes.
       const d = new Date(v);
       out[f.name] = Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
     } else if ((f.type === 'select' || f.type === 'searchSelect') && v != null && typeof v === 'object') {
@@ -99,13 +100,27 @@ export function AutoForm({ fields, defaultValues = {}, onSubmit, submitting, sub
                 </option>
               ))}
             </Select>
+          ) : f.type === 'date' ? (
+            <Controller
+              name={f.name}
+              control={control}
+              rules={{ required: f.required }}
+              render={({ field: { value, onChange } }) => (
+                <DatePicker
+                  value={value || ''}
+                  onChange={(e) => onChange(e.target.value)}
+                  name={f.name}
+                  disabled={f.readOnly}
+                />
+              )}
+            />
           ) : f.type === 'textarea' ? (
             <Textarea rows={3} disabled={f.readOnly} {...register(f.name, { required: f.required })} />
           ) : f.type === 'checkbox' ? (
             <input type="checkbox" className="h-4 w-4" {...register(f.name)} />
           ) : (
             <Input
-              type={f.type === 'date' ? 'date' : f.type === 'number' ? 'number' : 'text'}
+              type={f.type === 'number' ? 'number' : 'text'}
               step={f.step}
               placeholder={f.placeholder}
               readOnly={f.readOnly}

@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { AnimatePresence, motion } from 'framer-motion';
-import { TrendingUp, IndianRupee, Wallet, Percent, Calendar, ChevronDown, Truck, MinusCircle } from 'lucide-react';
+import { TrendingUp, IndianRupee, Wallet, Percent, Calendar, ChevronDown, Truck, MinusCircle, Receipt } from 'lucide-react';
 import { useGet } from '@/lib/useCrud';
 import { pct, inr, date } from '@/lib/format';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -62,7 +62,7 @@ export default function ProfitLossPage() {
         <Card className="p-8 text-center text-sm text-danger">{error.message}</Card>
       ) : (
         <>
-          <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
+          <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-7">
             <KpiCard label="Revenue" value={<Money value={d.revenue} />} icon={TrendingUp} accent="brand" delay={0} />
             <KpiCard
               label="Gross Profit"
@@ -71,8 +71,9 @@ export default function ProfitLossPage() {
               accent={(d.grossProfit || 0) >= 0 ? 'green' : 'red'}
               delay={0.05}
             />
-            <KpiCard label="Total Charges" value={<Money value={d.totalCharges} />} icon={MinusCircle} accent="amber" hint="COGS + shipping + expenses" delay={0.1} />
-            <KpiCard label="Shipping" value={<Money value={d.shippingCharges} />} icon={Truck} accent="amber" delay={0.15} />
+            <KpiCard label="GST Collected" value={<Money value={d.gstCollected} />} icon={Receipt} accent="brand" hint="Included in revenue" delay={0.1} />
+            <KpiCard label="Total Charges" value={<Money value={d.totalCharges} />} icon={MinusCircle} accent="amber" hint="COGS + shipping + expenses" delay={0.15} />
+            <KpiCard label="Shipping" value={<Money value={d.shippingCharges} />} icon={Truck} accent="amber" delay={0.2} />
             <KpiCard
               label="Net (Bank) Profit"
               value={<Money value={d.netProfit} />}
@@ -97,7 +98,9 @@ export default function ProfitLossPage() {
               </p>
             </div>
             <div className="divide-y divide-slate-100">
-              <PnlRow label="Revenue" value={d.revenue} />
+              <PnlRow label="Revenue (incl. GST)" value={d.revenue} />
+              <PnlRow label="GST collected (in revenue)" value={d.gstCollected} sub muted />
+              <PnlRow label="Base revenue (excl. GST)" value={d.baseRevenue} sub muted />
               <PnlRow label="− COGS (raw material cost)" value={-(d.cogs || 0)} muted />
               <PnlRow label="= Gross Profit" value={d.grossProfit} strong colored />
 
@@ -140,6 +143,7 @@ export default function ProfitLossPage() {
                     <th className="px-5 py-2.5">Date</th>
                     <th className="px-5 py-2.5 text-right">Orders</th>
                     <th className="px-5 py-2.5 text-right">Revenue</th>
+                    <th className="px-5 py-2.5 text-right">GST</th>
                     <th className="px-5 py-2.5 text-right">COGS</th>
                     <th className="px-5 py-2.5 text-right">Shipping</th>
                     <th className="px-5 py-2.5 text-right">Profit</th>
@@ -152,6 +156,7 @@ export default function ProfitLossPage() {
                       <td className="px-5 py-2.5 font-medium text-slate-700">{date(row.date)}</td>
                       <td className="px-5 py-2.5 text-right tnum">{row.orders}</td>
                       <td className="px-5 py-2.5 text-right tnum">{inr(row.revenue)}</td>
+                      <td className="px-5 py-2.5 text-right tnum text-slate-500">{inr(row.gst)}</td>
                       <td className="px-5 py-2.5 text-right tnum text-slate-500">{inr(row.cogs)}</td>
                       <td className="px-5 py-2.5 text-right tnum text-slate-500">{inr(row.shipping)}</td>
                       <td className={`px-5 py-2.5 text-right tnum font-semibold ${row.profit >= 0 ? 'text-green-700' : 'text-danger'}`}>
@@ -162,7 +167,7 @@ export default function ProfitLossPage() {
                   ))}
                   {!(d.daily || []).length && (
                     <tr>
-                      <td colSpan={7} className="px-5 py-6 text-center text-slate-400">No sales in this period</td>
+                      <td colSpan={8} className="px-5 py-6 text-center text-slate-400">No sales in this period</td>
                     </tr>
                   )}
                 </tbody>

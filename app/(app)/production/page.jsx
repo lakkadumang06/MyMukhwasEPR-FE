@@ -6,6 +6,7 @@ import { DataTable } from '@/components/data/DataTable';
 import { Modal } from '@/components/common/Modal';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Card, Button, Input, Label, Select } from '@/components/ui';
+import { DatePicker } from '@/components/common/DatePicker';
 import { Money } from '@/components/common/widgets';
 import { date } from '@/lib/format';
 import { useAppSelector } from '@/lib/store/hooks';
@@ -216,7 +217,7 @@ export default function ProductionPage() {
             </div>
             <div>
               <Label className="mb-1 block">Date <span className="text-danger">*</span></Label>
-              <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
+              <DatePicker value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
             </div>
           </div>
 

@@ -14,7 +14,8 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { KpiCard } from '@/components/common/widgets';
 import { Money } from '@/components/common/widgets';
 import { DataTable } from '@/components/data/DataTable';
-import { Card, Select, Input, Label } from '@/components/ui';
+import { DateRangePicker } from '@/components/common/DateRangePicker';
+import { Select, Label } from '@/components/ui';
 
 const GROUP_OPTIONS = [
   { value: 'day', label: 'Day' },
@@ -26,12 +27,11 @@ const GROUP_OPTIONS = [
 
 export default function SalesReportPage() {
   const [groupBy, setGroupBy] = useState('day');
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+  const [range, setRange] = useState({ from: '', to: '' });
 
   const params = { groupBy };
-  if (from) params.from = from;
-  if (to) params.to = to;
+  if (range.from) params.from = range.from;
+  if (range.to) params.to = range.to;
 
   const { data, isLoading, error } = useGet('/reports/sales', params);
 
@@ -50,15 +50,13 @@ export default function SalesReportPage() {
 
   return (
     <div>
-      <PageHeader title="Sales Report" subtitle="Grouped sales performance" />
-
-      <Card className="mb-6 p-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <PageHeader title="Sales Report" subtitle="Grouped sales performance">
+        <div className="flex items-end gap-3">
           <div>
-            <Label htmlFor="groupBy">Group By</Label>
+            <Label htmlFor="groupBy" className="mb-1 block text-xs">Group By</Label>
             <Select
               id="groupBy"
-              className="mt-1"
+              className="w-40"
               value={groupBy}
               onChange={(e) => setGroupBy(e.target.value)}
             >
@@ -70,27 +68,11 @@ export default function SalesReportPage() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="from">From</Label>
-            <Input
-              id="from"
-              type="date"
-              className="mt-1"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="to">To</Label>
-            <Input
-              id="to"
-              type="date"
-              className="mt-1"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-            />
+            <Label className="mb-1 block text-xs">Date Range</Label>
+            <DateRangePicker value={range} onChange={setRange} />
           </div>
         </div>
-      </Card>
+      </PageHeader>
 
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-6">
         <KpiCard label="Orders" value={num(summary.orders)} icon={ShoppingBag} delay={0} />

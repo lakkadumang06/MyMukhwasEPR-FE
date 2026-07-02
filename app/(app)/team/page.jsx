@@ -9,6 +9,7 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { AutoForm } from '@/components/form/AutoForm';
 import { Money, StatusBadge } from '@/components/common/widgets';
 import { Button, Card, Input, Label, Select } from '@/components/ui';
+import { DatePicker } from '@/components/common/DatePicker';
 import { useAppSelector } from '@/lib/store/hooks';
 import { selectRole } from '@/lib/store/authSlice';
 import { can } from '@/lib/rbac';
@@ -186,7 +187,7 @@ function AttendanceSection() {
           </div>
           <div>
             <Label className="mb-1 block">Date</Label>
-            <Input type="date" value={day} onChange={(e) => setDay(e.target.value)} />
+            <DatePicker value={day} onChange={(e) => setDay(e.target.value)} />
           </div>
           <div>
             <Label className="mb-1 block">Status</Label>

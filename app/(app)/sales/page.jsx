@@ -6,6 +6,8 @@ import { DataTable } from '@/components/data/DataTable';
 import { Modal } from '@/components/common/Modal';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { SearchSelect } from '@/components/form/SearchSelect';
+import { DateRangePicker } from '@/components/common/DateRangePicker';
+import { DatePicker } from '@/components/common/DatePicker';
 import { GstCalculator, computeGst } from '@/components/form/GstCalculator';
 import { GlassCard, GlassButton, StatusPill } from '@/components/ui/glass';
 import { Money } from '@/components/common/widgets';
@@ -44,7 +46,11 @@ export default function SalesPage() {
 
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const { data, isLoading, error } = useList('/sales', { search, page, limit: 25 });
+  const [range, setRange] = useState({ from: '', to: '' });
+  const listParams = { search, page, limit: 25 };
+  if (range.from) listParams.fromDate = range.from;
+  if (range.to) listParams.toDate = range.to;
+  const { data, isLoading, error } = useList('/sales', listParams);
   // Wider pull purely to compute the day-wise grand-total grid.
   const { data: allData } = useList('/sales', { limit: 500 });
   const { data: productsData } = useList('/products', { limit: 500 });
@@ -166,6 +172,7 @@ export default function SalesPage() {
   return (
     <div className="glass-bg -m-4 min-h-screen p-4 sm:-m-6 sm:p-6">
       <PageHeader title="Sales Entry" subtitle="Orders across channels with dynamic GST & profit">
+        <DateRangePicker value={range} onChange={(r) => { setRange(r); setPage(1); }} />
         {writable && (
           <GlassButton onClick={openNew}>
             <Plus size={16} /> New Sale
@@ -268,7 +275,7 @@ export default function SalesPage() {
           </div>
           <div>
             <Label className="mb-1 block">Date *</Label>
-            <Input type="date" value={form.date} onChange={(e) => setField('date', e.target.value)} required />
+            <DatePicker value={form.date} onChange={(e) => setField('date', e.target.value)} />
           </div>
           <div className="col-span-2">
             <Label className="mb-1 block">Product *</Label>
