@@ -16,6 +16,50 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Show a pointer cursor on anything interactive/clickable */
+button,
+a,
+label,
+select,
+summary,
+[role="button"],
+[role="link"],
+[role="tab"],
+[role="menuitem"],
+[role="option"],
+[onclick],
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Keep the disabled state honest */
+button:disabled,
+[aria-disabled="true"],
+[disabled] {
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Recharts: kill the black focus ring on clicked slices/bars and     */
+/*  the default text (I-beam) cursor over the SVG surface.             */
+/* ------------------------------------------------------------------ */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-wrapper * {
+  cursor: default;
+  outline: none !important;
+}
+.recharts-wrapper :focus,
+.recharts-wrapper :focus-visible,
+.recharts-surface:focus,
+.recharts-sector:focus,
+.recharts-bar-rectangle:focus,
+.recharts-pie:focus,
+.recharts-pie-sector:focus,
+.recharts-layer:focus {
+  outline: none !important;
+}
+
 /* ------------------------------------------------------------------ */
 /*  iOS "Liquid Glass" design language                                 */
 /*  Frosted, semi-transparent surfaces. IMPORTANT: backgrounds must    */

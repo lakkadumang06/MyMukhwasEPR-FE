@@ -1,13 +1,16 @@
 'use client';
+import Link from 'next/link';
 import {
   IndianRupee,
   ShoppingBag,
   TrendingUp,
   Wallet,
   AlertTriangle,
+  ClipboardList,
+  ChevronRight,
 } from 'lucide-react';
 import { useGet } from '@/lib/useCrud';
-import { inr, num, pct } from '@/lib/format';
+import { inr, num, pct, date } from '@/lib/format';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { KpiCard, Loading } from '@/components/common/widgets';
 import {
@@ -68,29 +71,76 @@ export default function DashboardPage() {
             Alerts &amp; Attention
           </p>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-            <AlertTile label="Finished Low / Out" value={a.finishedLowOut?.length || 0} />
-            <AlertTile label="Raw Low / Out" value={a.rawLowOut?.length || 0} />
-            <AlertTile label="Negative Stock" value={a.negativeStock?.length || 0} />
-            <AlertTile label="Overdue Udhaar" value={a.overdueUdhaar || 0} />
-            <AlertTile label="Pending Purchase Pmts" value={a.pendingPayments?.purchases || 0} />
-            <AlertTile label="Pending Returns" value={a.pendingReturns || 0} />
+            <AlertTile label="New B2B Orders" value={a.newB2BOrders?.length || 0} href="/b2b/orders" />
+            <AlertTile label="Finished Low / Out" value={a.finishedLowOut?.length || 0} href="/stock/finished" />
+            <AlertTile label="Raw Low / Out" value={a.rawLowOut?.length || 0} href="/stock/raw-materials" />
+            <AlertTile label="Negative Stock" value={a.negativeStock?.length || 0} href="/stock/finished" />
+            <AlertTile label="Overdue Udhaar" value={a.overdueUdhaar || 0} href="/credit-udhaar" />
+            <AlertTile label="Pending Returns" value={a.pendingReturns || 0} href="/returns" />
           </div>
         </Card>
       </FadeIn>
+
+      {a.newB2BOrders?.length > 0 && (
+        <FadeIn delay={0.25}>
+          <Card className="mt-6 rounded-2xl p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <p className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
+                  <ClipboardList size={14} />
+                </span>
+                New Wholesale Orders
+                <span className="rounded-full bg-brand-600 px-2 py-0.5 text-[11px] font-bold text-white">
+                  {a.newB2BOrders.length}
+                </span>
+              </p>
+              <Link href="/b2b/orders" className="flex items-center gap-0.5 text-xs font-medium text-brand-700 hover:text-brand-800">
+                View all <ChevronRight size={13} />
+              </Link>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {a.newB2BOrders.map((o) => (
+                <Link
+                  key={o.orderNo}
+                  href="/b2b/orders"
+                  className="flex items-center justify-between py-2.5 transition-colors hover:bg-slate-50"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-slate-800">
+                      {o.businessName || o.clientCode || 'Wholesale client'}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {o.orderNo} · {date(o.orderDate)}
+                    </p>
+                  </div>
+                  <span className="ml-3 shrink-0 text-sm font-semibold text-brand-700 tnum">{inr(o.total)}</span>
+                </Link>
+              ))}
+            </div>
+          </Card>
+        </FadeIn>
+      )}
     </div>
   );
 }
 
-function AlertTile({ label, value }) {
+function AlertTile({ label, value, href }) {
   const active = value > 0;
-  return (
-    <div
-      className={`rounded-xl border p-3 transition-colors ${
-        active ? 'border-red-100 bg-red-50/60' : 'border-slate-100 bg-slate-50'
-      }`}
-    >
+  const body = (
+    <>
       <p className="text-[11px] font-medium leading-tight text-slate-500">{label}</p>
       <p className={`mt-1 text-2xl font-bold tnum ${active ? 'text-accent' : 'text-slate-300'}`}>{value}</p>
-    </div>
+    </>
+  );
+  const className = `block rounded-xl border p-3 transition-colors ${
+    active ? 'border-red-100 bg-red-50/60' : 'border-slate-100 bg-slate-50'
+  } ${href ? 'hover:border-slate-300 hover:shadow-sm' : ''}`;
+
+  return href ? (
+    <Link href={href} className={className}>
+      {body}
+    </Link>
+  ) : (
+    <div className={className}>{body}</div>
   );
 }

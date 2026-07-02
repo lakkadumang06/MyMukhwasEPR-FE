@@ -45,8 +45,24 @@ export const Select = forwardRef(function Select(
   ref
 ) {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
   const [internalValue, setInternalValue] = useState(value ?? defaultValue ?? '');
   const containerRef = useRef(null);
+  const buttonRef = useRef(null);
+
+  const MENU_MAX_H = 240; // matches max-h-60 below
+
+  // Decide open direction based on available space, then toggle open.
+  const toggleOpen = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      // Flip up only when below is cramped and above has more room.
+      setDropUp(spaceBelow < MENU_MAX_H && spaceAbove > spaceBelow);
+    }
+    setIsOpen((o) => !o);
+  };
 
   // Parse children to extract options
   const options = Children.toArray(children)
@@ -108,8 +124,9 @@ export const Select = forwardRef(function Select(
       {/* Custom UI */}
       <button
         type="button"
+        ref={buttonRef}
         disabled={disabled}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleOpen}
         className={cn(
           'flex w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-3 py-2 text-base sm:text-sm outline-none transition-all',
           'focus:border-brand-500 focus:ring-2 focus:ring-brand-100 hover:bg-slate-50',
@@ -128,11 +145,14 @@ export const Select = forwardRef(function Select(
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: dropUp ? 10 : -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: dropUp ? 10 : -10 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg shadow-slate-200/50"
+            className={cn(
+              'absolute z-50 max-h-60 w-full overflow-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg shadow-slate-200/50',
+              dropUp ? 'bottom-full mb-1' : 'top-full mt-1',
+            )}
           >
             {options.map((option) => (
               <button
