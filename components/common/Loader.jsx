@@ -10,34 +10,42 @@ import { AnimatePresence, motion } from 'framer-motion';
  */
 export function BrandLoader({ label = 'Loading…' }) {
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 bg-gradient-to-br from-white to-slate-50">
-      <div className="relative flex h-24 w-24 items-center justify-center">
-        {/* spinning gradient ring */}
-        <span className="absolute inset-0 animate-spin rounded-full border-[3px] border-brand-100 border-t-brand-600" />
-        {/* pulsing glow */}
-        <span className="absolute inset-2 animate-ping rounded-full bg-brand-500/10" />
-        {/* favicon badge */}
-        <motion.div
-          animate={{ scale: [1, 1.08, 1] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-          className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-md"
-        >
-          <Image src="/favicon.webp" alt="MyMukhwas" width={36} height={36} className="h-9 w-9 object-contain" priority />
-        </motion.div>
-      </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="fixed inset-0 z-[200] grid min-h-[100dvh] place-items-center bg-gradient-to-br from-white to-slate-50"
+    >
+      <div className="flex flex-col items-center justify-center gap-6 px-6 text-center">
+        <div className="relative flex h-24 w-24 items-center justify-center">
+          {/* spinning gradient ring */}
+          <span className="absolute inset-0 animate-spin rounded-full border-[3px] border-brand-100 border-t-brand-600" />
+          {/* pulsing glow */}
+          <span className="absolute inset-2 animate-ping rounded-full bg-brand-500/10" />
+          {/* favicon badge */}
+          <motion.div
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-md"
+          >
+            <Image src="/favicon.webp" alt="MyMukhwas" width={36} height={36} className="h-9 w-9 object-contain" priority />
+          </motion.div>
+        </div>
 
-      <div className="flex items-center gap-1.5">
-        {[0, 1, 2].map((i) => (
-          <motion.span
-            key={i}
-            className="h-2 w-2 rounded-full bg-brand-600"
-            animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
-            transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
-          />
-        ))}
+        <div className="flex items-center justify-center gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="h-2 w-2 rounded-full bg-brand-600"
+              animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
+              transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
+            />
+          ))}
+        </div>
+        <p className="text-sm font-medium text-slate-400">{label}</p>
       </div>
-      <p className="text-sm font-medium text-slate-400">{label}</p>
-    </div>
+    </motion.div>
   );
 }
 
